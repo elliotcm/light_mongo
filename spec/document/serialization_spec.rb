@@ -117,6 +117,13 @@ describe LightMongo::Document::Serialization do
   end
   
   describe "#to_bson" do
+    it "delegates to Serialization.to_bson(object)" do
+      LightMongo::Document::Serialization.should_receive(:to_bson).with(@test_object)
+      @test_object.to_bson
+    end
+  end
+  
+  describe ".to_bson(object)" do
     before(:each) do
       @test_object.test_attribute = 'Test value'
     end
@@ -126,10 +133,35 @@ describe LightMongo::Document::Serialization do
       @test_object.to_bson
     end
     
-    it "encodes the class name in the BSON" do
-      BSON.should_receive(:serialize).with(hash_including('_class_name' => 'TestClass'))
-      @test_object.to_bson
+    context "if the object is a LightMongo Document" do
+      class ADocument
+        include LightMongo::Document
+      end
+      
+      before(:each) do
+        @test_object = ADocument.new
+      end
+
+      it "does not encode the class name in the BSON" do
+        LightMongo::Document::Serialization.to_bson(@test_object)
+        @test_object.instance_variable_get('@_class_name').should_not == 'ADocument'
+      end
     end
+
+    context "if the object is not a LightMongo Document" do
+      class NotADocument
+      end
+      
+      before(:each) do
+        @test_object = NotADocument.new
+      end
+      it "encodes the class name in the BSON" do
+        LightMongo::Document::Serialization.to_bson(@test_object)
+        @test_object.instance_variable_get('@_class_name').should == 'NotADocument'
+      end
+
+    end
+    
   end
   
   describe "#from_bson(bson)" do
