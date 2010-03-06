@@ -1,9 +1,14 @@
 require File.dirname(__FILE__) + '/../../lib/document'
 
 describe LightMongo::Document::Serialization do
-  class TestClass
-    include LightMongo::Document
-    attr_accessor :test_attribute
+  before(:each) do
+    Mongo::Collection.stub!(:new => mock(:collection))
+    LightMongo.stub!(:database => mock(:database))
+
+    class TestClass
+      include LightMongo::Document
+      attr_accessor :test_attribute
+    end
   end
   
   before(:each) do
