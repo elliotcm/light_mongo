@@ -1,4 +1,5 @@
 module LightMongo
+  # Connection and database getters/setters hoofed from jnunemaker's MongoMapper
   def self.connection
     @@connection ||= Mongo::Connection.new
   end
