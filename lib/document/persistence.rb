@@ -27,6 +27,10 @@ module LightMongo
       def self.included(document_class)
         @@collection ||= Mongo::Collection.new(LightMongo.database, document_class.name)
       end
+      
+      def save
+        @@collection.save(self.to_hash)
+      end
     end
   end
 end
