@@ -10,6 +10,51 @@ describe LightMongo::Document do
     @test_object = TestClass.new
   end
 
+  context "when given an embeddable object" do
+    class EmbeddableClass
+      attr_accessor :embedded_attribute
+    end
+    
+    before(:each) do
+      @embedded_object_in = EmbeddableClass.new
+      @embedded_object_in.embedded_attribute = @embedded_attribute = mock(:embedded_attribute).to_s
+      @test_object_in = TestClass.new(:test_attribute => @embedded_object_in)
+    end
+    
+    it "recursively serialises the object" do
+      test_object_out = TestClass.new(@test_object_in.to_bson)
+      embedded_object_out = test_object_out.test_attribute
+      embedded_object_out.embedded_attribute.should == @embedded_attribute
+    end
+  end
+
+  context "when given a doubly embeddable object" do
+    class LevelOneEmbeddableClass
+      attr_accessor :level_one_embedded_attribute
+    end
+    
+    class LevelTwoEmbeddableClass
+      attr_accessor :level_two_embedded_attribute
+    end
+    
+    before(:each) do
+      @l1_embedded_object_in = LevelOneEmbeddableClass.new
+      @l2_embedded_object_in = LevelTwoEmbeddableClass.new
+      
+      @l2_embedded_object_in.level_two_embedded_attribute = @l2_embedded_attribute = mock(:embedded_attribute).to_s
+      @l1_embedded_object_in.level_one_embedded_attribute = @l2_embedded_object_in
+      
+      @test_object_in = TestClass.new(:test_attribute => @l1_embedded_object_in)
+    end
+    
+    it "recursively serialises the object" do
+      test_object_out = TestClass.new(@test_object_in.to_bson)
+      l1_embedded_object_out = test_object_out.test_attribute
+      l2_embedded_object_out = l1_embedded_object_out.level_one_embedded_attribute
+      l2_embedded_object_out.level_two_embedded_attribute.should == @l2_embedded_attribute
+    end
+  end
+
   def self.it_serialises_the_attribute
     it "correctly serialises the given attribute" do
       test_object_in = TestClass.new(:test_attribute => @attribute_value)
@@ -77,7 +122,12 @@ describe LightMongo::Document do
     end
     
     it "exports all attributes as BSON" do
-      BSON.should_receive(:serialize).with({'test_attribute' => 'Test value'})
+      BSON.should_receive(:serialize).with(hash_including('test_attribute' => 'Test value'))
+      @test_object.to_bson
+    end
+    
+    it "encodes the class name in the BSON" do
+      BSON.should_receive(:serialize).with(hash_including('_class_name' => 'TestClass'))
       @test_object.to_bson
     end
   end
