@@ -22,7 +22,7 @@ describe LightMongo::Document::Serialization do
     end
     
     it "recursively serialises the object" do
-      test_object_out = TestClass.new(@test_object_in.to_bson)
+      test_object_out = TestClass.new(@test_object_in.to_hash)
       embedded_object_out = test_object_out.test_attribute
       embedded_object_out.embedded_attribute.should == @embedded_attribute
     end
@@ -48,7 +48,7 @@ describe LightMongo::Document::Serialization do
     end
     
     it "recursively serialises the object" do
-      test_object_out = TestClass.new(@test_object_in.to_bson)
+      test_object_out = TestClass.new(@test_object_in.to_hash)
       l1_embedded_object_out = test_object_out.test_attribute
       l2_embedded_object_out = l1_embedded_object_out.level_one_embedded_attribute
       l2_embedded_object_out.level_two_embedded_attribute.should == @l2_embedded_attribute
@@ -58,7 +58,7 @@ describe LightMongo::Document::Serialization do
   def self.it_serialises_the_attribute
     it "correctly serialises the given attribute" do
       test_object_in = TestClass.new(:test_attribute => @attribute_value)
-      test_object_out = TestClass.new(test_object_in.to_bson)
+      test_object_out = TestClass.new(test_object_in.to_hash)
     
       test_object_out.test_attribute.should == test_object_in.test_attribute
     end
@@ -103,74 +103,8 @@ describe LightMongo::Document::Serialization do
         @test_object.test_attribute.should == @test_value
       end
     end
-
-    context "when given a BSON string" do
-      before(:each) do
-        @params = BSON.serialize({:test_attribute => @test_value})
-      end
-      
-      it "converts the BSON to attributes" do
-        @test_object = TestClass.new(@params)
-        @test_object.test_attribute.should == @test_value
-      end
-    end
   end
-  
-  describe "#to_bson" do
-    it "delegates to Serialization.to_bson(object)" do
-      LightMongo::Document::Serialization.should_receive(:to_bson).with(@test_object)
-      @test_object.to_bson
-    end
-  end
-  
-  describe ".to_bson(object)" do
-    before(:each) do
-      @test_object.test_attribute = 'Test value'
-    end
-    
-    it "exports all attributes as BSON" do
-      BSON.should_receive(:serialize).with(hash_including('test_attribute' => 'Test value'))
-      @test_object.to_bson
-    end
-    
-    context "if the object is a LightMongo Document" do
-      class ADocument
-        include LightMongo::Document
-      end
-      
-      before(:each) do
-        @test_object = ADocument.new
-      end
 
-      it "does not encode the class name in the BSON" do
-        LightMongo::Document::Serialization.to_bson(@test_object)
-        @test_object.instance_variable_get('@_class_name').should_not == 'ADocument'
-      end
-    end
-
-    context "if the object is not a LightMongo Document" do
-      class NotADocument
-      end
-      
-      before(:each) do
-        @test_object = NotADocument.new
-      end
-      it "encodes the class name in the BSON" do
-        LightMongo::Document::Serialization.to_bson(@test_object)
-        @test_object.instance_variable_get('@_class_name').should == 'NotADocument'
-      end
-
-    end
-    
-  end
-  
-  describe "#from_bson(bson)" do
-    it "parses BSON into instance attributes" do
-      @test_object.from_bson(BSON.serialize({"test_attribute" => "Test value"}))
-      @test_object.test_attribute.should == 'Test value'
-    end
-  end
-  
   describe "#from_hash(hash)" do
     it "parses a hash into instance attributes" do
       @test_object.from_hash(:test_attribute => 'Test value')
