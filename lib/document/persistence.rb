@@ -1,6 +1,6 @@
 module LightMongo
   module Document
-    module Repository
+    module Persistence
       
     end
   end

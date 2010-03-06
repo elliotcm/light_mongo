@@ -9,7 +9,7 @@ describe LightMongo::Document do
     TestClass.should include(LightMongo::Document::Serialization)
   end
   
-  it "loads the repository module" do
-    TestClass.should include(LightMongo::Document::Repository)
+  it "loads the persistence module" do
+    TestClass.should include(LightMongo::Document::Persistence)
   end
 end
