@@ -42,11 +42,12 @@ module LightMongo
           return if key_name.blank?
           
           method_name = 'find_by_'+(hash[:name] or key_name).to_s
-          
           if viable_method_name(method_name)
-            define_method(method_name.to_sym) do
-              
-            end
+            (class << self; self; end).class_eval %{
+              def #{method_name}(value)
+                collection.find(:#{key_name} => value).map{|bson_hash| new(bson_hash)}
+              end
+            }
           end
           
           collection.create_index(key_name)
@@ -55,10 +56,6 @@ module LightMongo
         def viable_method_name(method_name)
           method_name =~ /^\w+[!?]?$/
         end
-      
-        # def find_by_name(name)
-        #   collection.find(:name => name).map{|bson_hash| new(bson_hash)}
-        # end
       end
       
       def collection
@@ -67,6 +64,10 @@ module LightMongo
       
       def save
         collection.save(self.to_hash)
+      end
+      
+      def id
+        @_id
       end
     end
   end

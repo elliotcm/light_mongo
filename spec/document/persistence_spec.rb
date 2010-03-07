@@ -31,12 +31,42 @@ describe LightMongo::Document::Persistence do
     end
   end
   
+  describe "#id" do
+    before(:each) do
+      @id = mock(:id)
+      @test_object = TestClass.new(:_id => @id)
+    end
+    
+    it "delegates to the Mongo _id" do
+      @test_object.id.should == @id
+    end
+  end
+  
+  describe ".find_by_<index>(value)" do
+    before(:each) do
+      @test_class_collection.stub!(:create_index)
+      TestClass.index(:key => :name)
+      @name = mock(:name)
+      @id = mock(:id)
+      
+      @bson_hash = {:class_name => 'TestClass', :name => @name, :_id => @id}
+    end
+    
+    it "finds all objects which match the given index pattern" do
+      @test_class_collection.should_receive(:find).with(:name => @name).and_return([@bson_hash])
+      test_object = TestClass.find_by_name(@name).first
+      test_object.id.should == @id
+      test_object.name.should == @name
+      test_object.class.should == TestClass
+    end
+  end
+  
   describe ".index(:key => key, :as => (name | nil))" do
     def self.it_sets_up_the_index_verbatim
       it "sets up the index with key #{@key} and name #{@name}" do
         @test_class_collection.should_receive(:create_index).with(@key)
         set_up_class(@key, @name)
-        @indexable_object.should respond_to(('find_by_'+@name.to_s).to_sym)
+        TestClass.should respond_to(('find_by_'+@name.to_s).to_sym)
       end
     end
     
@@ -53,7 +83,7 @@ describe LightMongo::Document::Persistence do
         @test_class_collection.should_not_receive(:create_index)
         set_up_class(nil)
         set_up_class('')
-        @indexable_object.should_not respond_to(:find_by_)
+        TestClass.should_not respond_to(:find_by_)
       end
     end
     
@@ -66,7 +96,7 @@ describe LightMongo::Document::Persistence do
         it "uses the key as the lookup name" do
           @test_class_collection.should_receive(:create_index).with(@key)
           set_up_class(@key)
-          @indexable_object.should respond_to(('find_by_'+@key.to_s).to_sym)
+          TestClass.should respond_to(('find_by_'+@key.to_s).to_sym)
         end
       end
       
@@ -93,7 +123,7 @@ describe LightMongo::Document::Persistence do
         it "does not create a method using the key" do
           @test_class_collection.stub(:create_index)
           set_up_class(@key)
-          @indexable_object.should_not respond_to(('find_by_'+@key.to_s).to_sym)
+          TestClass.should_not respond_to(('find_by_'+@key.to_s).to_sym)
         end
       end
       
@@ -140,4 +170,5 @@ describe LightMongo::Document::Persistence do
       end
     end
   end
+
 end
