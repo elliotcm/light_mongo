@@ -104,6 +104,39 @@ describe LightMongo::Document::Serialization do
       
       @inner = Inner.new
       @outer = Outer.new(:inner => @inner)
+      
+      @inner.stub!(:save => @inner.object_id)
+      @outer.stub!(:save => @outer.object_id)
+    end
+    
+    it "exports the inner documents" do
+      @inner.should_receive(:export)
+      @outer.to_hash
+    end
+  end
+  
+  describe "serializing objects containing arrays of non-native objects" do
+    before(:each) do
+      class Other
+        attr_accessor :name
+        def initialize
+          @name = self.class.name + object_id.to_s
+        end
+      end
+      @other_1 = Other.new
+      @other_2 = Other.new
+      
+      class TestClass
+        attr_accessor :objects
+      end
+      @test_object = TestClass.new(:objects => [@other_1, @other_2])
+    end
+    
+    it "serialized the arrayed objects" do
+      @test_object.to_hash['objects'].should == [
+        {'_class_name' => 'Other', 'name' => @other_1.name},
+        {'_class_name' => 'Other', 'name' => @other_2.name}
+      ]
     end
   end
     

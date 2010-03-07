@@ -2,16 +2,6 @@ module LightMongo
   module Document
     module Serialization
       class <<self
-        def to_hash(object)
-          recursively_hashed_object = {}
-          object.instance_variables.each do |attribute_name|
-            new_hash_key = attribute_name.sub(/^@/, '')
-            nested_object = object.instance_variable_get(attribute_name)
-            recursively_hashed_object[new_hash_key] = recursively_hash_object(nested_object)
-          end
-          return recursively_hashed_object
-        end
-      
         def from_hash(hash, object)
           hash.each_pair do |attribute_key, attribute_value|
             if attribute_value.is_a?(Hash) and attribute_value.has_key?('_class_name')
@@ -26,9 +16,28 @@ module LightMongo
           return object
         end
         
+        def to_hash(object)
+          recursively_hashed_object = {}
+          object.instance_variables.each do |attribute_name|
+            new_hash_key = attribute_name.sub(/^@/, '')
+            nested_object = object.instance_variable_get(attribute_name)
+            recursively_hashed_object[new_hash_key] = recursively_hash_object(nested_object)
+          end
+          return recursively_hashed_object
+        end
+      
         def recursively_hash_object(object)
+          # LightMongo::Document
           return object.export if persistable?(object)
           
+          # Array
+          if object.is_a?(Array)
+            return object.map do |entry|
+              recursively_hash_object(entry)
+            end
+          end
+          
+          # Other non-native object
           begin
             raise_unless_natively_embeddable(object)
           rescue Mongo::InvalidDocument => e
@@ -37,6 +46,8 @@ module LightMongo
             hashed_object['_class_name'] = klass_name
           end
           
+          # We're left with a clean object or our
+          # (presumably native) original object.
           return hashed_object || object
         end
         
