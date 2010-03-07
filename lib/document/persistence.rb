@@ -60,11 +60,10 @@ module LightMongo
           @@collection
         end
         
-        def index(hash)
-          key_name = hash[:key]
+        def index(key_name, options={})
           return if key_name.blank?
           
-          method_name = 'find_by_'+(hash[:name] or key_name).to_s
+          method_name = 'find_by_'+(options[:as] or key_name).to_s
           if viable_method_name(method_name)
             (class << self; self; end).class_eval %{
               def #{method_name}(value)

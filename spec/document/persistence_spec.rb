@@ -75,7 +75,7 @@ describe LightMongo::Document::Persistence do
   describe ".find_by_<index>(value)" do
     before(:each) do
       @test_class_collection.stub!(:create_index)
-      TestClass.index(:key => :name)
+      TestClass.index(:name)
       @name = mock(:name)
       @id = mock(:id)
       
@@ -91,7 +91,7 @@ describe LightMongo::Document::Persistence do
     end
   end
   
-  describe ".index(:key => key, :as => (name | nil))" do
+  describe ".index(key, :as => (name | nil))" do
     def self.it_sets_up_the_index_verbatim
       it "sets up the index with key #{@key} and name #{@name}" do
         @test_class_collection.should_receive(:create_index).with(@key)
@@ -101,9 +101,7 @@ describe LightMongo::Document::Persistence do
     end
     
     def set_up_class(key, name=nil)
-      index_hash = {:key => key}
-      index_hash[:name] = name unless name.nil?
-      TestClass.index(index_hash)
+      TestClass.index(key, :as => name)
 
       @indexable_object = TestClass.new(:top_level_attribute => 'test')
     end
