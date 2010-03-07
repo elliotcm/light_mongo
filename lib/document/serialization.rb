@@ -1,13 +1,25 @@
 module LightMongo
+  def self.slow_serialization=(boolean)
+    @@slow_serialization = boolean
+  end
+  
+  def self.slow_serialization
+    @@slow_serialization || false
+  end
+  
   module Document
     module Serialization
       class <<self
         def from_hash(hash, object)
           hash.each_pair do |attribute_key, attribute_value|
             if attribute_value.is_a?(Hash) and attribute_value.has_key?('_class_name')
-              embedded_hash = attribute_value
-              klass = embedded_hash.delete('_class_name')
-              attribute_value = from_hash(embedded_hash, Kernel.const_get(klass).new)
+              if attribute_value.has_key?('_data')
+                attribute_value = Marshal.load(attribute_value['_data'])
+              else
+                embedded_hash = attribute_value
+                klass = embedded_hash.delete('_class_name')
+                attribute_value = from_hash(embedded_hash, Kernel.const_get(klass).new)
+              end
             end
 
             object.instance_variable_set('@'+attribute_key.to_s, attribute_value)
@@ -38,12 +50,20 @@ module LightMongo
           end
           
           # Other non-native object
-          begin
-            raise_unless_natively_embeddable(object)
-          rescue Mongo::InvalidDocument => e
-            klass_name = object.class.name
-            hashed_object = to_hash(object)
-            hashed_object['_class_name'] = klass_name
+          if LightMongo.slow_serialization
+            begin
+              raise_unless_natively_embeddable(object)
+            rescue Mongo::InvalidDocument => e
+              klass_name = object.class.name
+              hashed_object = to_hash(object)
+              hashed_object['_class_name'] = klass_name
+            end
+          else
+            # Marshalling objects is faster,
+            # but you won't be able to use Mongo features on them.
+            hashed_object = {}
+            hashed_object['_class_name'] = object.class.name
+            hashed_object['_data'] = Marshal.dump(object)
           end
           
           # We're left with a clean object or our

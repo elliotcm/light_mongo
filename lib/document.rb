@@ -10,10 +10,9 @@ require_document 'persistence'
 
 module LightMongo
   module Document
-    include Serialization
-
     def self.included(klass)
       klass.class_eval("
+      include Serialization
         include Persistence
       ")
     end
