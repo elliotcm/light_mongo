@@ -1,20 +1,20 @@
 require File.dirname(__FILE__) + '/../../lib/document'
 
 describe LightMongo::Document::Persistence do
-  before(:each) do
+  before(:all) do
     LightMongo.stub!(:database => mock(:database, :connection => nil))
+    @test_class_collection = mock(:test_class_collection)
+    Mongo::Collection.stub!(:new => @test_class_collection)
 
     class TestClass
       include LightMongo::Document
       attr_accessor :name
     end
-    @test_class_collection = mock(:test_class_collection)
-    TestClass.send(:class_variable_set, :@@collection, @test_class_collection)
   end
   
   describe "the module's inclusion" do
     it "sets up the collection on a class-level" do
-      TestClass.send(:class_variable_get, :@@collection).should == @test_class_collection
+      TestClass.collection.should == @test_class_collection
     end
   end
   
@@ -28,6 +28,107 @@ describe LightMongo::Document::Persistence do
     it "saves the Document to the collection for that class" do
       @test_class_collection.should_receive(:save).with(@test_object_hash)
       @test_object.save
+    end
+  end
+  
+  describe ".index(:key => key, :as => (name | nil))" do
+    def self.it_sets_up_the_index_verbatim
+      it "sets up the index with key #{@key} and name #{@name}" do
+        @test_class_collection.should_receive(:create_index).with(@key)
+        set_up_class(@key, @name)
+        @indexable_object.should respond_to(('find_by_'+@name.to_s).to_sym)
+      end
+    end
+    
+    def set_up_class(key, name=nil)
+      index_hash = {:key => key}
+      index_hash[:name] = name unless name.nil?
+      TestClass.index(index_hash)
+
+      @indexable_object = TestClass.new(:top_level_attribute => 'test')
+    end
+    
+    context "when the given key is usable as a method name" do
+      before(:each) do
+        @key = :top_level_attribute
+      end
+      
+      context "and no name is provided" do
+        it "uses the key as the lookup name" do
+          @test_class_collection.should_receive(:create_index).with(@key)
+          set_up_class(@key)
+          @indexable_object.should respond_to(('find_by_'+@key.to_s).to_sym)
+        end
+      end
+      
+      context "and a name is provided" do
+        before(:each) do
+          @name = :environment
+        end
+        
+        it_sets_up_the_index_verbatim
+      end
+    end
+    
+    context "when the given key is unusuable as a method name" do
+      before(:each) do
+        @key = 'top_level_attribute.sub_attribute'
+      end
+      
+      context "and no name is provided" do
+        it "adds an index on the key" do
+          @test_class_collection.should_receive(:create_index).with(@key)
+          set_up_class(@key)
+        end
+        
+        it "does not create a method using the key" do
+          @test_class_collection.stub(:create_index)
+          set_up_class(@key)
+          @indexable_object.should_not respond_to(('find_by_'+@key.to_s).to_sym)
+        end
+      end
+      
+      context "and a name is provided" do
+        before(:each) do
+          @name = :sub_environment
+        end
+        
+        it_sets_up_the_index_verbatim
+      end
+    end
+  end
+  
+  describe ".viable_method_name(method_name)" do
+    context "contains only alphanums and underscores" do
+      it "is valid" do
+        TestClass.viable_method_name('_jkdsf328_32').should be_true
+      end
+      
+      context "and ends in an exclamation mark" do
+        it 'is valid' do
+          TestClass.viable_method_name('_jkdsf328_32!').should be_true
+        end
+      end
+
+      context "and ends in an question mark" do
+        it 'is valid' do
+          TestClass.viable_method_name('_jkdsf328_32?').should be_true
+        end
+      end
+    end
+    
+    context "contains a non [alphanum_!?] anywhere" do
+      it "is invalid" do
+        TestClass.viable_method_name('_jkdsf328_32*').should be_false
+        TestClass.viable_method_name('_jkdsf^328_32').should be_false
+      end
+    end
+    
+    context "contains a [!?] anywhere but the end" do
+      it "is invalid" do
+        TestClass.viable_method_name('_jkds!f328_32').should be_false
+        TestClass.viable_method_name('_jkds?f328_32').should be_false
+      end
     end
   end
 end

@@ -23,13 +23,48 @@ module LightMongo
   
   module Document
     module Persistence
-      @@collection = nil
       def self.included(document_class)
-        @@collection ||= Mongo::Collection.new(LightMongo.database, document_class.name)
+        document_class.class_eval("extend ClassMethods")
+        document_class.collection = Mongo::Collection.new(LightMongo.database, document_class.name)
+      end
+      
+      module ClassMethods
+        def collection=(collection)
+          @@collection = collection
+        end
+      
+        def collection
+          @@collection
+        end
+        
+        def index(hash)
+          key_name = hash[:key]
+          method_name = 'find_by_'+(hash[:name] or key_name).to_s
+          
+          if viable_method_name(method_name)
+            define_method(method_name.to_sym) do
+              
+            end
+          end
+          
+          collection.create_index(key_name)
+        end
+        
+        def viable_method_name(method_name)
+          method_name =~ /^\w+[!?]?$/
+        end
+      
+        # def find_by_name(name)
+        #   collection.find(:name => name).map{|bson_hash| new(bson_hash)}
+        # end
+      end
+      
+      def collection
+        self.class.collection
       end
       
       def save
-        @@collection.save(self.to_hash)
+        collection.save(self.to_hash)
       end
     end
   end
