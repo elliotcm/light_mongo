@@ -1,8 +1,12 @@
 require 'rubygems'
 require 'mongo'
 
-require "document/serialization"
-require "document/persistence"
+def require_document(lib)
+  require File.dirname(__FILE__) + "/document/" + lib
+end
+
+require_document 'serialization'
+require_document 'persistence'
 
 module LightMongo
   module Document
