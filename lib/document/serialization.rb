@@ -3,22 +3,13 @@ module LightMongo
     module Serialization
       class <<self
         def to_hash(object)
-          attr_hash = {}
-          object.instance_variables.each do |_attribute|
-            _attribute_key = _attribute.sub(/^@/, '')
-            _attribute_value = object.instance_variable_get(_attribute)
-        
-            begin
-              BSON_RUBY.new.bson_type(_attribute_value)
-            rescue Mongo::InvalidDocument => e
-              klass_name = _attribute_value.class.name
-              _attribute_value = to_hash(_attribute_value)
-              _attribute_value['_class_name'] = klass_name
-            end
-        
-            attr_hash[_attribute_key] = _attribute_value
+          recursively_hashed_object = {}
+          object.instance_variables.each do |attribute_name|
+            new_hash_key = attribute_name.sub(/^@/, '')
+            nested_object = object.instance_variable_get(attribute_name)
+            recursively_hashed_object[new_hash_key] = recursively_hash_object(nested_object)
           end
-          return attr_hash
+          return recursively_hashed_object
         end
       
         def from_hash(hash, object)
@@ -33,6 +24,22 @@ module LightMongo
           end
       
           return object
+        end
+        
+        def recursively_hash_object(object)
+          begin
+            raise_unless_natively_embeddable(object)
+          rescue Mongo::InvalidDocument => e
+            klass_name = object.class.name
+            hashed_object = to_hash(object)
+            hashed_object['_class_name'] = klass_name
+          end
+          
+          return hashed_object || object
+        end
+        
+        def raise_unless_natively_embeddable(object)
+          BSON_RUBY.new.bson_type(object)
         end
       end
       
