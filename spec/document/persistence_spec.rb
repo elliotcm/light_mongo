@@ -42,6 +42,18 @@ describe LightMongo::Document::Persistence do
     end
   end
   
+  describe "#==(other)" do
+    before(:each) do
+      @id = mock(:id)
+      @object_1 = TestClass.new(:_id => @id)
+      @object_2 = TestClass.new(:_id => @id)
+    end
+
+    it "compares on id" do
+      @object_1.should == @object_2
+    end
+  end
+  
   describe ".find_by_<index>(value)" do
     before(:each) do
       @test_class_collection.stub!(:create_index)

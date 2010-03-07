@@ -24,7 +24,7 @@ module LightMongo
   module Document
     module Persistence
       def self.included(document_class)
-        document_class.class_eval("extend ClassMethods")
+        document_class.class_eval 'extend ClassMethods'
         document_class.collection = Mongo::Collection.new(LightMongo.database, document_class.name)
       end
       
@@ -68,6 +68,10 @@ module LightMongo
       
       def id
         @_id
+      end
+      
+      def ==(other)
+        self.id == other.id
       end
     end
   end
