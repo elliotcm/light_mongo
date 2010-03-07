@@ -31,6 +31,24 @@ describe LightMongo::Document::Persistence do
     end
   end
   
+  describe ".create(params)" do
+    before(:each) do
+      @name = mock(:name)
+      @test_object = TestClass.new(:name => @name)
+      @test_object.stub!(:save)
+      TestClass.stub!(:new).with(:name => @name).and_return(@test_object)
+    end
+    
+    it "spawns a new Ruby object from the params" do
+      TestClass.create(:name => @name).name.should == @name
+    end
+    
+    it "saves the Ruby object to the database" do
+      @test_object.should_receive(:save)
+      TestClass.create(:name => @name)
+    end
+  end
+  
   describe "#id" do
     before(:each) do
       @id = mock(:id)

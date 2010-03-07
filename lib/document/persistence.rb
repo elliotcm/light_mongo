@@ -28,7 +28,30 @@ module LightMongo
         document_class.collection = Mongo::Collection.new(LightMongo.database, document_class.name)
       end
       
+      def collection
+        self.class.collection
+      end
+      
+      def save
+        collection.save(self.to_hash)
+      end
+      
+      def id
+        @_id
+      end
+      
+      def ==(other)
+        self.id == other.id
+      end
+
+      
       module ClassMethods
+        def create(params)
+          new_object = new(params)
+          new_object.save
+          return new_object
+        end
+        
         def collection=(collection)
           @@collection = collection
         end
@@ -58,21 +81,6 @@ module LightMongo
         end
       end
       
-      def collection
-        self.class.collection
-      end
-      
-      def save
-        collection.save(self.to_hash)
-      end
-      
-      def id
-        @_id
-      end
-      
-      def ==(other)
-        self.id == other.id
-      end
     end
   end
 end
