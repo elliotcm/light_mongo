@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../../lib/document'
+require File.dirname(__FILE__) + '/../../lib/light_mongo'
 
 describe LightMongo::Document::Persistence do
   before(:all) do
@@ -46,6 +46,15 @@ describe LightMongo::Document::Persistence do
       TestClass.index(index_hash)
 
       @indexable_object = TestClass.new(:top_level_attribute => 'test')
+    end
+    
+    context "when given no key" do
+      it "creates no index and no method" do
+        @test_class_collection.should_not_receive(:create_index)
+        set_up_class(nil)
+        set_up_class('')
+        @indexable_object.should_not respond_to(:find_by_)
+      end
     end
     
     context "when the given key is usable as a method name" do

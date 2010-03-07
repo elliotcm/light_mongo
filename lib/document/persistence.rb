@@ -39,6 +39,8 @@ module LightMongo
         
         def index(hash)
           key_name = hash[:key]
+          return if key_name.blank?
+          
           method_name = 'find_by_'+(hash[:name] or key_name).to_s
           
           if viable_method_name(method_name)

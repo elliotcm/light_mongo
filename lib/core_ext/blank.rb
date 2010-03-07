@@ -1,5 +1,5 @@
 # Pulled with vigour from Rails 2.3.5
-unless Object.respond_to?(:blank)
+unless Object.respond_to?(:blank?)
   class Object
     # An object is blank if it's false, empty, or a whitespace string.
     # For example, "", "   ", +nil+, [], and {} are blank.
