@@ -92,6 +92,54 @@ describe LightMongo::Document::Serialization do
     it_serialises_the_attribute
   end
   
+  describe "serializing nested Documents" do
+    before(:each) do
+      class Outer
+        include LightMongo::Document
+      end
+      
+      class Inner
+        include LightMongo::Document
+      end
+      
+      @inner = Inner.new
+      @outer = Outer.new(:inner => @inner)
+    end
+  end
+    
+  describe "#export" do
+    before(:each) do
+      @test_object = TestClass.new
+
+      @id = mock(:id)
+      @test_object.stub!(:save => @id)
+    end
+    
+    context "if Persistence has been included" do
+      it "saves itself" do
+        @test_object.should_receive(:save)
+        @test_object.export
+      end
+      
+      it "generates a hash of its class name and id" do
+        @test_object.export.should == {'_class_name' => 'TestClass', '_id' => @id}
+      end
+    end
+    
+    context "if Persistence hasn't been included" do
+      before(:each) do
+        class NoPersistence
+          include LightMongo::Document::Serialization
+        end
+        @no_persistence = NoPersistence.new
+      end
+      
+      it "returns self" do
+        @no_persistence.export.should == @no_persistence
+      end
+    end
+  end
+  
   describe "#initialize(params)" do
     before(:each) do
       @test_value = mock(:test_value).to_s

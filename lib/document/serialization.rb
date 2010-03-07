@@ -27,6 +27,8 @@ module LightMongo
         end
         
         def recursively_hash_object(object)
+          return object.export if persistable?(object)
+          
           begin
             raise_unless_natively_embeddable(object)
           rescue Mongo::InvalidDocument => e
@@ -41,6 +43,10 @@ module LightMongo
         def raise_unless_natively_embeddable(object)
           BSON_RUBY.new.bson_type(object)
         end
+        
+        def persistable?(object)
+          object.is_a?(LightMongo::Document) and object.respond_to?(:save)
+        end
       end
       
       def initialize(params={})
@@ -53,6 +59,12 @@ module LightMongo
 
       def from_hash(hash)
         Serialization.from_hash(hash, self)
+      end
+      
+      def export
+        return self unless self.class.include?(LightMongo::Document::Persistence)
+        _id = self.save
+        {'_class_name' => self.class.name, '_id' => _id}
       end
     end
   end
