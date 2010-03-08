@@ -104,12 +104,12 @@ describe LightMongo::Document::Serialization do
       
       @inner = Inner.new
       @outer = Outer.new(:inner => @inner)
-      
       @inner.stub!(:save => @inner.object_id)
       @outer.stub!(:save => @outer.object_id)
     end
     
     it "exports the inner documents" do
+
       @inner.should_receive(:export)
       @outer.to_hash
     end

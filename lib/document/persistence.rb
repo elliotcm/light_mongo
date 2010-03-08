@@ -24,7 +24,7 @@ module LightMongo
   module Document
     module Persistence
       def self.included(document_class)
-        document_class.class_eval 'extend ClassMethods'
+        document_class.extend ClassMethods
         document_class.collection = Mongo::Collection.new(LightMongo.database, document_class.name)
       end
       
