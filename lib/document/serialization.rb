@@ -4,7 +4,7 @@ module LightMongo
   end
   
   def self.slow_serialization
-    @@slow_serialization || false
+    defined?(@@slow_serialization) and @@slow_serialization
   end
   
   module Document
