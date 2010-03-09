@@ -65,7 +65,7 @@ module LightMongo
           
           method_name = 'find_by_'+(options[:as] or key_name).to_s
           if viable_method_name(method_name)
-            self.class.class_eval do
+            (class << self; self; end).class_eval do
               define_method method_name.to_sym do |value|
                 collection.find(key_name.to_sym => value).map{|bson_hash| new(bson_hash)}
               end
