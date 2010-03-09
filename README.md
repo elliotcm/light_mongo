@@ -2,6 +2,12 @@ LightMongo
 ==========
 LightMongo is a lightweight Mongo object persistence layer for Ruby which makes use of Mongo's features rather than trying to emulate ActiveRecord.
 
+Status
+-----------------
+LightMongo is only a few days old, so while most of the features demo'd below work, there's no strong integration testing yet, so I wouldn't use it for data you particularly care about until I release a gem.
+
+Check out the development roadmap for an idea of my current priorities.
+
 The problem
 -----------
 Developers occasionally encounter a domain which defies simple modelling in an ActiveRecord relational style, and look to some of the nosql databases for a solution.  They find Mongo, a document database, and feel it might provide the flexibility they need.  After a bit of research they pick out a persistence library which seems popular and well maintained.  It even emulates most of ActiveRecord's behaviour, style and relational philosophy.  Great!
@@ -111,17 +117,14 @@ LightMongo uses its Document mixin to signify a collection, so if you embed a Li
     Article.find.first.author == Person.find.first
     => true
 
-Development cycle
------------------
-LightMongo is under heavily development, but most of the features above are fully operational.  See the roadmap for more information.
-
 Roadmap
 -------
 1. Improved testbed to allow stronger integration testing.
 2. More intelligent and efficient object serialisation.
-3. Proper deserialisation of cross-collection objects.
+3. Proper deserialisation of cross-collection objects (currently they go in, don't come back out).
 4. Nested hash serialisation.
-5. Efficient validations.
+4. Migrations (e.g. when you rename classes or modify their collection style).
+5. Some kind of validations, perhaps.
 
 
 
