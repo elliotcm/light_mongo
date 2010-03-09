@@ -91,6 +91,23 @@ describe LightMongo::Document::Persistence do
     end
   end
   
+  describe ".find(query=nil)" do
+    before(:each) do
+      @no_query_results = mock(:no_query_results)
+      @query_results = mock(:query_results)
+      TestClass.stub!(:new).with(@no_query_results).and_return(@no_query_object = mock(:no_query_object))
+      TestClass.stub!(:new).with(@query_results).and_return(@query_object = mock(:query_object))
+    end
+    
+    it "maps MongoDB::Collection.find" do
+      @test_class_collection.should_receive(:find).and_return([@no_query_results])
+      TestClass.find.should == [@no_query_object]
+      
+      @test_class_collection.should_receive(:find).with(query = mock(:query)).and_return([@query_results])
+      TestClass.find(query).should == [@query_object]
+    end
+  end
+  
   describe ".index(key, :as => (name | nil))" do
     def self.it_sets_up_the_index_verbatim
       it "sets up the index with key #{@key} and name #{@name}" do

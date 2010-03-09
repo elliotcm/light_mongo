@@ -75,6 +75,10 @@ module LightMongo
           collection.create_index(key_name)
         end
         
+        def find(query=nil)
+          collection.find(query).map{|bson_hash| new(bson_hash)}
+        end
+        
         def viable_method_name(method_name)
           method_name =~ /^\w+[!?]?$/
         end
