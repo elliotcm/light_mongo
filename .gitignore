@@ -1,4 +1,4 @@
-.*.sw?
-tmp
-*.scratch.*
-.DS_Store
+coverage
+rdoc
+pkg
+
