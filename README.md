@@ -84,13 +84,15 @@ It's not generally a good idea to do much searching on keys that haven't been in
       index :abstract, :as => :precis
     end
 
-    Article.create(:title => 'Fluid Physics in Geology', :abstract => 'A study in geological fluid physics', :page_length => 367)
+    geology_article = Article.create(:title => 'Fluid Physics in Geology',
+                                     :abstract => 'A study in geological fluid physics',
+                                     :page_length => 367)
     
-    Article.find_by_title('Fluid Physics in Geology').page_length
-    => 367
+    Article.find_by_title('Fluid Physics in Geology').first == geology_article
+    => true
     
-    Article.find_by_precis('A study in geological fluid physics').page_length
-    => 367
+    Article.find_by_precis('A study in geological fluid physics').first == geology_article
+    => true
     
 The aliasing option is not required, but is recommended if you want dynamic finders for indexed keys that can't be represented in a standard Ruby method name (for example, a finder will not be created for a complex multi-level Mongo key index.  See the Mongo manual for more information).
 
@@ -109,7 +111,6 @@ LightMongo uses its Document mixin to signify a collection, so if you embed a Li
     
     dave = Person.new(:name => 'Dave')
     fluid_physics = Article.create(:title => 'Fluid Physics in Geology', :author => dave)
-    fluid_physics.save
     
     Person.find.first
     => #<Person:0x101664138 @_id="4b93cf9397bc7697187000001" @name="Dave">
