@@ -1,7 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/integration_helper')
-require File.dirname(__FILE__) + '/../lib/light_mongo'
-
-LightMongo.database = 'light_mongo_test'
+require File.expand_path(File.dirname(__FILE__) + '/support/integration_helper')
 
 describe 'Integration tests' do
   db_teardown
