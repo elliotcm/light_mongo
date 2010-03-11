@@ -33,7 +33,7 @@ module LightMongo
       end
       
       def save
-        collection.save(self.to_hash)
+        @_id = collection.save(self.to_hash)
       end
       
       def id
