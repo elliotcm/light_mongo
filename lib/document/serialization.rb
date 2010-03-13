@@ -1,10 +1,20 @@
+require File.dirname(__FILE__) + '/serialization/serializer'
+
 module LightMongo
   def self.slow_serialization=(boolean)
     @@slow_serialization = boolean
   end
   
   def self.slow_serialization
-    defined?(@@slow_serialization) and @@slow_serialization
+    defined?(@@slow_serialization) ? @@slow_serialization : false
+  end
+
+  def self.marshal_depth=(depth)
+    @@marshal_depth = depth
+  end
+  
+  def self.marshal_depth
+    defined?(@@marshal_depth) ? @@marshal_depth : 3
   end
   
   module Document
