@@ -3,10 +3,14 @@ require File.dirname(__FILE__) + '/../../../lib/document/serialization'
 Serializer = LightMongo::Document::Serialization::Serializer
 
 describe Serializer do
-  describe ".serialize(object)" do
+  before(:each) do
+    @object = mock(:object)
+  end
+  
+  describe ".serialize(object, current_depth)" do
     before(:each) do
       @depth = 0
-      @serializer = Serializer.new(@object = mock(:object), @depth)
+      @serializer = Serializer.new(@object, @depth)
       @serializer.stub!(:hash_serialize => (@hash_serialized_object = mock(:hash_serialized_object)))
       Serializer.stub!(:new).with(@object, anything).and_return(@serializer)
     end
@@ -90,19 +94,36 @@ describe Serializer do
     end
   end
   
-  describe "#marshal" do
-    before(:each) do
-      @object = mock(:object)
-    end
-    
+  describe "#marshal(object)" do
     it "marshals the object." do
       Marshal.should_receive(:dump).with(@object)
       Serializer.new(@object).marshal
     end
     
     it "returns the marshalled object." do
-      Marshal.stub!(:dump).with(@object).and_return(marshalled_object = mock(:marshalled_object))
+      Marshal.stub!(:dump).
+        with(@object).
+        and_return(marshalled_object = mock(:marshalled_object))
       Serializer.new(@object).marshal.should == marshalled_object
+    end
+  end
+
+  describe "#hash_serialize(object, current_depth)" do
+    before(:each) do
+      @current_depth = mock(:current_depth)
+    end
+    
+    it "serializes the object into a set of nested hashes." do
+      LightMongo::Document::Serialization::HashSerializer.
+        should_receive(:dump).with(@object, @current_depth)
+      Serializer.new(@object, @current_depth).hash_serialize
+    end
+    
+    it "returns the marshalled object." do
+      LightMongo::Document::Serialization::HashSerializer.stub!(:dump).
+        with(@object, @current_depth).
+        and_return(hashed_object = mock(:hashed_object))
+      Serializer.new(@object, @current_depth).hash_serialize.should == hashed_object
     end
   end
 end

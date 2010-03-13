@@ -1,3 +1,5 @@
+require File.dirname(__FILE__) + '/hash_serializer'
+
 module LightMongo
   module Document
     module Serialization
@@ -20,7 +22,7 @@ module LightMongo
         end
 
         def hash_serialize
-          
+          HashSerializer.dump(@object_to_serialize, @depth)
         end
       end
     end
