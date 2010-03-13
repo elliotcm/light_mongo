@@ -10,12 +10,13 @@ module LightMongo
           serializer.marshal
         end
         
-        def initialize(object_to_serialize, depth)
+        def initialize(object_to_serialize, depth=0)
+          @object_to_serialize = object_to_serialize
           @depth = depth
         end
         
         def marshal
-          
+          Marshal.dump(@object_to_serialize)
         end
 
         def hash_serialize

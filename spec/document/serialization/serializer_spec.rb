@@ -1,16 +1,16 @@
-require File.dirname(__FILE__) + '/../../../lib/light_mongo'
+require File.dirname(__FILE__) + '/../../../lib/document/serialization'
 
 Serializer = LightMongo::Document::Serialization::Serializer
 
 describe Serializer do
-  before(:each) do
-    @depth = 0
-    @serializer = Serializer.new(@object = mock(:object), @depth)
-    @serializer.stub!(:hash_serialize => (@hash_serialized_object = mock(:hash_serialized_object)))
-    Serializer.stub!(:new).with(@object, anything).and_return(@serializer)
-  end
-
   describe ".serialize(object)" do
+    before(:each) do
+      @depth = 0
+      @serializer = Serializer.new(@object = mock(:object), @depth)
+      @serializer.stub!(:hash_serialize => (@hash_serialized_object = mock(:hash_serialized_object)))
+      Serializer.stub!(:new).with(@object, anything).and_return(@serializer)
+    end
+
     def self.it_creates_a_new_serializer_instance
       it "creates a new serializer instance" do
         Serializer.should_receive(:new).with(@object, @depth).and_return(@serializer)
@@ -87,6 +87,22 @@ describe Serializer do
         
         it_returns_the_hash_serialized_object
       end
+    end
+  end
+  
+  describe "#marshal" do
+    before(:each) do
+      @object = mock(:object)
+    end
+    
+    it "marshals the object." do
+      Marshal.should_receive(:dump).with(@object)
+      Serializer.new(@object).marshal
+    end
+    
+    it "returns the marshalled object." do
+      Marshal.stub!(:dump).with(@object).and_return(marshalled_object = mock(:marshalled_object))
+      Serializer.new(@object).marshal.should == marshalled_object
     end
   end
 end
