@@ -39,56 +39,10 @@ module LightMongo
       
           return object
         end
-        
-        def to_hash(object)
-          recursively_hashed_object = {}
-          object.instance_variables.each do |attribute_name|
-            new_hash_key = attribute_name.sub(/^@/, '')
-            nested_object = object.instance_variable_get(attribute_name)
-            recursively_hashed_object[new_hash_key] = recursively_hash_object(nested_object)
-          end
-          return recursively_hashed_object
-        end
       
         def recursively_hash_object(object)
           # LightMongo::Document
           return object.export if persistable?(object)
-          
-          # Array
-          if object.is_a?(Array)
-            return object.map do |entry|
-              recursively_hash_object(entry)
-            end
-          end
-          
-          # Other non-native object
-          if LightMongo.slow_serialization
-            begin
-              raise_unless_natively_embeddable(object)
-            rescue Mongo::InvalidDocument => e
-              klass_name = object.class.name
-              hashed_object = to_hash(object)
-              hashed_object['_class_name'] = klass_name
-            end
-          else
-            # Marshalling objects is faster,
-            # but you won't be able to use Mongo features on them.
-            hashed_object = {}
-            hashed_object['_class_name'] = object.class.name
-            hashed_object['_data'] = Marshal.dump(object)
-          end
-          
-          # We're left with a clean object or our
-          # (presumably native) original object.
-          return hashed_object || object
-        end
-        
-        def raise_unless_natively_embeddable(object)
-          BSON_RUBY.new.bson_type(object)
-        end
-        
-        def persistable?(object)
-          object.is_a?(LightMongo::Document) and object.respond_to?(:save)
         end
       end
       
@@ -96,8 +50,8 @@ module LightMongo
         self.from_hash(params)
       end
 
-      def to_hash
-        Serialization.to_hash(self)
+      def to_hash(current_depth=0)
+        Serializer.serialize(self, current_depth)
       end
 
       def from_hash(hash)
@@ -106,8 +60,8 @@ module LightMongo
       
       def export
         return self unless self.class.include?(LightMongo::Document::Persistence)
-        _id = self.save
-        {'_class_name' => self.class.name, '_id' => _id}
+        self.save
+        {'_class_name' => self.class.name, '_id' => self.id}
       end
     end
   end

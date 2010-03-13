@@ -1,8 +1,6 @@
 require File.dirname(__FILE__) + '/../../../lib/document/serialization'
 
-Serializer = LightMongo::Document::Serialization::Serializer
-
-describe Serializer do
+describe LightMongo::Document::Serialization::Serializer do
   before(:each) do
     @object = mock(:object)
   end
@@ -10,28 +8,28 @@ describe Serializer do
   describe ".serialize(object, current_depth)" do
     before(:each) do
       @depth = 0
-      @serializer = Serializer.new(@object, @depth)
+      @serializer = LightMongo::Document::Serialization::Serializer.new(@object, @depth)
       @serializer.stub!(:hash_serialize => (@hash_serialized_object = mock(:hash_serialized_object)))
-      Serializer.stub!(:new).with(@object, anything).and_return(@serializer)
+      LightMongo::Document::Serialization::Serializer.stub!(:new).with(@object, anything).and_return(@serializer)
     end
 
     def self.it_creates_a_new_serializer_instance
       it "creates a new serializer instance" do
-        Serializer.should_receive(:new).with(@object, @depth).and_return(@serializer)
-        Serializer.serialize(@object, @depth)
+        LightMongo::Document::Serialization::Serializer.should_receive(:new).with(@object, @depth).and_return(@serializer)
+        LightMongo::Document::Serialization::Serializer.serialize(@object, @depth)
       end
     end
     
     def self.it_hash_serializes_the_object
       it "hash-serializes the object." do
         @serializer.should_receive(:hash_serialize)
-        Serializer.serialize(@object, @depth)
+        LightMongo::Document::Serialization::Serializer.serialize(@object, @depth)
       end
     end
     
     def self.it_returns_the_hash_serialized_object
       it "returns the hash-serialized object." do
-        Serializer.serialize(@object, @depth).should == @hash_serialized_object
+        LightMongo::Document::Serialization::Serializer.serialize(@object, @depth).should == @hash_serialized_object
       end
     end
     
@@ -46,7 +44,7 @@ describe Serializer do
       
       it "does not marshal the object." do
         @serializer.should_not_receive(:marshal)
-        Serializer.serialize(@object, @depth)
+        LightMongo::Document::Serialization::Serializer.serialize(@object, @depth)
       end
       
       it_returns_the_hash_serialized_object
@@ -66,17 +64,17 @@ describe Serializer do
         
         it "marshals the object." do
           @serializer.should_receive(:marshal)
-          Serializer.serialize(@object, @depth)
+          LightMongo::Document::Serialization::Serializer.serialize(@object, @depth)
         end
         
         it "does not hash-serialize the object." do
           @serializer.should_not_receive(:hash_serialize)
-          Serializer.serialize(@object, @depth)
+          LightMongo::Document::Serialization::Serializer.serialize(@object, @depth)
         end
         
         it "returns the marshalled object." do
           @serializer.stub!(:marshal => (@marshalled_object = mock(:marshalled_object)))
-          Serializer.serialize(@object, @depth).should == @marshalled_object
+          LightMongo::Document::Serialization::Serializer.serialize(@object, @depth).should == @marshalled_object
         end
       end
       
@@ -97,14 +95,14 @@ describe Serializer do
   describe "#marshal(object)" do
     it "marshals the object." do
       Marshal.should_receive(:dump).with(@object)
-      Serializer.new(@object).marshal
+      LightMongo::Document::Serialization::Serializer.new(@object).marshal
     end
     
     it "returns the marshalled object." do
       Marshal.stub!(:dump).
         with(@object).
         and_return(marshalled_object = mock(:marshalled_object))
-      Serializer.new(@object).marshal.should == marshalled_object
+      LightMongo::Document::Serialization::Serializer.new(@object).marshal.should == marshalled_object
     end
   end
 
@@ -116,14 +114,14 @@ describe Serializer do
     it "serializes the object into a set of nested hashes." do
       LightMongo::Document::Serialization::HashSerializer.
         should_receive(:dump).with(@object, @current_depth)
-      Serializer.new(@object, @current_depth).hash_serialize
+      LightMongo::Document::Serialization::Serializer.new(@object, @current_depth).hash_serialize
     end
     
     it "returns the marshalled object." do
       LightMongo::Document::Serialization::HashSerializer.stub!(:dump).
         with(@object, @current_depth).
         and_return(hashed_object = mock(:hashed_object))
-      Serializer.new(@object, @current_depth).hash_serialize.should == hashed_object
+      LightMongo::Document::Serialization::Serializer.new(@object, @current_depth).hash_serialize.should == hashed_object
     end
   end
 end
