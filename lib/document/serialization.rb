@@ -6,7 +6,8 @@ module LightMongo
   end
   
   def self.slow_serialization
-    defined?(@@slow_serialization) ? @@slow_serialization : false
+    @@slow_serialization = nil unless defined?(@@slow_serialization)
+    @@slow_serialization ||= false
   end
 
   def self.marshal_depth=(depth)
@@ -14,7 +15,8 @@ module LightMongo
   end
   
   def self.marshal_depth
-    defined?(@@marshal_depth) ? @@marshal_depth : 3
+    @@marshal_depth = nil unless defined?(@@marshal_depth)
+    @@marshal_depth ||= 3
   end
   
   module Document
