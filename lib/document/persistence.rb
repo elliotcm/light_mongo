@@ -14,7 +14,7 @@ module LightMongo
   end
  
   def self.database
-    unless defined?(@@database_name) and !@@database_name.blank?
+    unless defined?(@@database_name) and !Util.blank?(@@database_name)
       raise 'You forgot to set the default database name: LightMongo.database = "foobar"'
     end
  
@@ -61,7 +61,7 @@ module LightMongo
         end
         
         def index(key_name, options={})
-          return if key_name.blank?
+          return if Util.blank?(key_name)
           
           method_name = 'find_by_'+(options[:as] or key_name).to_s
           if viable_method_name(method_name)
