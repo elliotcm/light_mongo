@@ -46,13 +46,13 @@ module LightMongo
 
       
       module ClassMethods
+        attr_accessor :collection
+
         def create(params)
           new_object = new(params)
           new_object.save
           return new_object
         end
-
-        attr_accessor :collection
         
         def index(key_name, options={})
           return if Util.blank?(key_name)
