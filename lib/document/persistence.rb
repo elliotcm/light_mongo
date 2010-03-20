@@ -51,14 +51,8 @@ module LightMongo
           new_object.save
           return new_object
         end
-        
-        def collection=(collection)
-          @@collection = collection
-        end
-      
-        def collection
-          @@collection
-        end
+
+        attr_accessor :collection
         
         def index(key_name, options={})
           return if Util.blank?(key_name)
@@ -76,6 +70,7 @@ module LightMongo
         end
         
         def find(query=nil)
+          query = {'_id' => query} unless query.nil? or query.is_a?(Hash)
           collection.find(query).map{|bson_hash| new(bson_hash)}
         end
         

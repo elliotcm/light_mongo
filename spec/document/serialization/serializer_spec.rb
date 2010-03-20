@@ -5,6 +5,123 @@ describe LightMongo::Document::Serialization::Serializer do
     @object = mock(:object)
   end
   
+  describe ".array_deserialize(object)" do
+    before(:each) do
+      @object = [
+        @ivar1 = mock(:ivar1),
+        @ivar2 = mock(:ivar2)
+      ]
+    end
+
+    it "map-deserializes each element in the array" do
+      LightMongo::Document::Serialization::Serializer.
+        should_receive(:deserialize).with(@ivar1).
+        and_return(desel_ivar1 = mock(:desel_ivar1))
+        
+      LightMongo::Document::Serialization::Serializer.
+        should_receive(:deserialize).with(@ivar2).
+        and_return(desel_ivar2 = mock(:desel_ivar2))
+        
+      LightMongo::Document::Serialization::Serializer.send(:array_deserialize, @object).
+        should == [desel_ivar1, desel_ivar2]
+    end
+  end
+  
+  describe ".hash_deserialize(object)" do
+    before(:each) do
+      @object = {
+        :ivar1 => (@ivar1 = mock(:ivar1)),
+        :ivar2 => (@ivar2 = mock(:ivar2))
+      }
+    end
+
+    it "map-deserializes each element in the hash" do
+      LightMongo::Document::Serialization::Serializer.
+        should_receive(:deserialize).with(@ivar1).
+        and_return(desel_ivar1 = mock(:desel_ivar1))
+        
+      LightMongo::Document::Serialization::Serializer.
+        should_receive(:deserialize).with(@ivar2).
+        and_return(desel_ivar2 = mock(:desel_ivar2))
+
+      LightMongo::Document::Serialization::Serializer.send(:hash_deserialize, @object).
+        should == {:ivar1 => desel_ivar1, :ivar2 => desel_ivar2}
+    end
+  end
+  
+  describe ".deserialize(object)" do
+    context "when the object is an array" do
+      before(:each) do
+        @object = []
+      end
+      
+      it "deserializes the array" do
+        LightMongo::Document::Serialization::Serializer.
+          should_receive(:array_deserialize).with(@object).
+          and_return(desel_array = mock(:desel_array))
+          
+        LightMongo::Document::Serialization::Serializer.deserialize(@object).
+          should == desel_array
+      end
+    end
+    
+    context "when the object is a hash" do
+      before(:each) do
+        @object = {}
+      end
+      
+      context "and nothing more" do
+        it "deserializes the hash" do
+          LightMongo::Document::Serialization::Serializer.should_receive(:hash_deserialize).with(@object)
+          LightMongo::Document::Serialization::Serializer.deserialize(@object)
+        end
+      end
+      
+      context "and a Marshal dump" do
+        before(:each) do
+          @marshal_dump = mock(:marshal_dump)
+          @object['_data'] = @marshal_dump
+        end
+        
+        it "unmarshals the dump" do
+          Marshal.should_receive(:load).with(@marshal_dump).
+            and_return(unmarshalled_data = mock(:unmarshalled_data))
+            
+          LightMongo::Document::Serialization::Serializer.deserialize(@object).
+            should == unmarshalled_data
+        end
+      end
+      
+      context "and a LightMongo::Document" do
+        before(:each) do
+          class TestClass
+          end
+          
+          @id = mock(:id)
+          @object = {'_id' => @id, '_class_name' => 'TestClass'}
+        end
+        
+        it "recovers the linked document" do
+          TestClass.stub!(:find).with(@id).and_return(test_instance = mock(:test_instance))
+          
+          LightMongo::Document::Serialization::Serializer.deserialize(@object).
+            should == test_instance
+        end
+      end
+    end
+    
+    context "when the object is anything else" do
+      before(:each) do
+        @object = 3
+      end
+      
+      it "returns the object unharmed" do
+        LightMongo::Document::Serialization::Serializer.deserialize(@object).
+          should == @object
+      end
+    end
+  end
+  
   describe ".serialize(object, current_depth)" do
     before(:each) do
       @depth = 0
@@ -102,7 +219,7 @@ describe LightMongo::Document::Serialization::Serializer do
       Marshal.stub!(:dump).
         with(@object).
         and_return(marshalled_object = mock(:marshalled_object))
-      LightMongo::Document::Serialization::Serializer.new(@object).marshal.should == marshalled_object
+      LightMongo::Document::Serialization::Serializer.new(@object).marshal.should == {'_data' => marshalled_object}
     end
   end
 

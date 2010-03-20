@@ -21,31 +21,6 @@ module LightMongo
   
   module Document
     module Serialization
-      class <<self
-        def from_hash(hash, object)
-          hash.each_pair do |attribute_key, attribute_value|
-            if attribute_value.is_a?(Hash) and attribute_value.has_key?('_class_name')
-              if attribute_value.has_key?('_data')
-                attribute_value = Marshal.load(attribute_value['_data'])
-              else
-                embedded_hash = attribute_value
-                klass = embedded_hash.delete('_class_name')
-                attribute_value = from_hash(embedded_hash, Kernel.const_get(klass).new)
-              end
-            end
-
-            object.instance_variable_set('@'+attribute_key.to_s, attribute_value)
-          end
-      
-          return object
-        end
-      
-        def recursively_hash_object(object)
-          # LightMongo::Document
-          return object.export if persistable?(object)
-        end
-      end
-      
       def initialize(params={})
         self.from_hash(params)
       end
@@ -55,13 +30,15 @@ module LightMongo
       end
 
       def from_hash(hash)
-        Serialization.from_hash(hash, self)
+        Serializer.deserialize(hash).each_pair do |attr_name, attr_value|
+          self.instance_variable_set '@'+attr_name.to_s, attr_value
+        end
       end
       
       def export
         return self unless self.class.include?(LightMongo::Document::Persistence)
         self.save
-        {'_class_name' => self.class.name, '_id' => self.id}
+        {'_class_name' => self.class.name, '_id' => self.id, '_embed' => true}
       end
     end
   end

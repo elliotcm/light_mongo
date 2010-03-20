@@ -36,20 +36,20 @@ module LightMongo
             return object_to_serialize if natively_embeddable?(object_to_serialize)
 
             return object_to_serialize.export if object_to_serialize.is_a? LightMongo::Document and current_depth > 0
-              
 
             return hashify(object_to_serialize, current_depth)
           end
           
           def hashify(object_to_serialize, current_depth)
-            hashed_object = {'_class_name' => object_to_serialize.class.name}
+            hashed_object = {}
+            hashed_object['_class_name'] = object_to_serialize.class.name if current_depth > 0
             
             object_to_serialize.instance_variables.each do |attribute_name|
               new_hash_key = attribute_name.sub(/^@/, '')
               nested_object = object_to_serialize.instance_variable_get(attribute_name)
               hashed_object[new_hash_key] = Serializer.serialize(nested_object, current_depth + 1)
             end
-            
+
             return hashed_object
           end
           

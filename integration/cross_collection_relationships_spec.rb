@@ -22,7 +22,6 @@ describe 'Embedding a LightMongo::Document within another LightMongo::Document' 
   end
   
   it "retains a reference to the embedded document in its container document." do
-    pending
     Article.find.first.author.should == @dave
   end
   
