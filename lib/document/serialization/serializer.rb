@@ -14,9 +14,21 @@ module LightMongo
                 return Marshal.load(object_to_deserialize['_data'])
               end
 
-              if object_to_deserialize.has_key?('_embed') and object_to_deserialize['_embed'] == true
+              if object_to_deserialize.has_key?('_class_name')
                 class_name = object_to_deserialize.delete('_class_name')
-                return Object.const_get(class_name).find(object_to_deserialize['_id']).first
+
+                if !object_to_deserialize.has_key?('_id')
+                  object = Object.const_get(class_name).new
+                  object_to_deserialize.each_pair do |attr_name, attr_value|
+                    object.instance_variable_set '@'+attr_name, attr_value
+                  end
+                  
+                  return object
+                end
+
+                if object_to_deserialize.has_key?('_embed') and object_to_deserialize['_embed'] == true
+                  return Object.const_get(class_name).find(object_to_deserialize['_id']).first
+                end
               end
               
               return hash_deserialize(object_to_deserialize)

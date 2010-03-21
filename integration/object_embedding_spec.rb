@@ -30,7 +30,6 @@ describe 'Embedding a Ruby object within your LightMongo::Document' do
   end
   
   it "is represented as embedded MongoDB documents and eager restored." do
-    pending
     stored_article = Article.find.first
     stored_article.title.should == @title
     
