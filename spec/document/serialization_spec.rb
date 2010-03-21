@@ -11,10 +11,6 @@ describe LightMongo::Document::Serialization do
       attr_accessor :test_attribute
     end
   end
-  
-  before(:each) do
-    @test_object = TestClass.new
-  end
     
   describe "#export" do
     before(:each) do
@@ -30,8 +26,8 @@ describe LightMongo::Document::Serialization do
         @test_object.export
       end
       
-      it "generates a hash of its class name and id" do
-        @test_object.export.should == {'_class_name' => 'TestClass', '_id' => @id}
+      it "generates a hash of its class name, id, and embed status" do
+        @test_object.export.should == {'_class_name' => 'TestClass', '_id' => @id, '_embed' => true}
       end
     end
     
@@ -67,6 +63,10 @@ describe LightMongo::Document::Serialization do
   end
 
   describe "#from_hash(hash)" do
+    before(:each) do
+      @test_object = TestClass.new
+    end
+
     it "parses a hash into instance attributes" do
       @test_object.from_hash(:test_attribute => 'Test value')
       @test_object.test_attribute.should == 'Test value'

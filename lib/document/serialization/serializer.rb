@@ -43,7 +43,6 @@ module LightMongo
             serializer.marshal
           end
           
-          private
           def array_deserialize(array)
             array.map do |entry|
               deserialize(entry)

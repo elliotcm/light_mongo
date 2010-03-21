@@ -17,7 +17,6 @@ module LightMongo
             end
           end
         
-          private
           def serialize_array(object_to_serialize, current_depth)
             object_to_serialize.map do |entry|
               Serializer.serialize(entry, current_depth + 1)

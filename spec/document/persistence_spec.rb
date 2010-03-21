@@ -103,7 +103,7 @@ describe LightMongo::Document::Persistence do
       @test_class_collection.should_receive(:find).and_return([@no_query_results])
       TestClass.find.should == [@no_query_object]
       
-      @test_class_collection.should_receive(:find).with(query = mock(:query)).and_return([@query_results])
+      @test_class_collection.should_receive(:find).with({'_id' => query = mock(:query)}).and_return([@query_results])
       TestClass.find(query).should == [@query_object]
     end
   end

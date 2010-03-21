@@ -28,7 +28,7 @@ describe LightMongo::Document::Serialization::HashSerializer do
         end
         
         it "hashifies the object" do
-          HashSerializer.send(:serialize_object, @object, @current_depth).
+          HashSerializer.send(:serialize_object, @object, @current_depth+3).
             should == {'_class_name' => 'Other', 'name' => @object.name}
         end
       end
@@ -50,7 +50,7 @@ describe LightMongo::Document::Serialization::HashSerializer do
           
           it "exports the object" do
             HashSerializer.send(:serialize_object, @object, @current_depth).
-              should == {'_class_name' => 'TestClass', '_id' => @id}
+              should == {'_class_name' => 'TestClass', '_id' => @id, '_embed' => true}
           end
         end
         
