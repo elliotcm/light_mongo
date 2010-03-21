@@ -6,7 +6,12 @@ Status
 -----------------
 LightMongo is still new, but all the examples below are working.  Please check out the integration tests for usage indications, and please post any issues you find to the the Github issues page.
 
-LightMongo is best installed via `gem install light_mongo`.
+Installation
+------------
+LightMongo is best installed via `gem install light_mongo` and required as normal.
+
+It is dependent on the gem `mongo`, which is the MongoDB Ruby driver.
+For performance reasons I would recommend also installing `mongo_ext`, the C extensions for the driver.
 
 The problem
 -----------
