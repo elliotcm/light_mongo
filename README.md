@@ -4,9 +4,9 @@ LightMongo is a lightweight Mongo object persistence layer for Ruby which makes 
 
 Status
 -----------------
-LightMongo is only a few days old, so while most of the features demo'd below work, there's no strong integration testing yet, so I wouldn't use it for data you particularly care about until I release a gem.
+LightMongo is still new, but all the examples below are working.  Please check out the integration tests for usage indications, and please post any issues you find to the the Github issues page.
 
-Check out the development roadmap for an idea of my current priorities.
+LightMongo is best installed via `gem install light_mongo`.
 
 The problem
 -----------
@@ -26,6 +26,9 @@ We're Ruby developers.  Let's act like it.
 
 An example
 ----------
+    require 'rubygems'
+    require 'light_mongo'
+    
     class Article
       include LightMongo::Document
     end
@@ -118,14 +121,10 @@ LightMongo uses its Document mixin to signify a collection, so if you embed a Li
     Article.find.first.author == Person.find.first
     => true
 
-Roadmap
--------
-1. Improved testbed to allow stronger integration testing.
-2. More intelligent and efficient object serialisation.
-3. Proper deserialisation of cross-collection objects (currently they go in, don't come back out).
-4. Nested hash serialisation.
-4. Migrations (e.g. when you rename classes or modify their collection style).
-5. Some kind of validations, perhaps.
+Future development
+------------------
+1. Migrations (e.g. when you rename classes or modify their collection style).
+2. Some kind of validations, perhaps.
 
 
 
