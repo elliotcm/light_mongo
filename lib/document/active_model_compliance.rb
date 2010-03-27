@@ -1,3 +1,6 @@
+require 'rubygems'
+require 'active_model/naming'
+
 module LightMongo
   module Document
     
@@ -17,6 +20,10 @@ module LightMongo
 
       def destroyed?
         @_id.nil?
+      end
+      
+      def self.included(doc_class)
+        doc_class.extend ActiveModel::Naming
       end
     end
     

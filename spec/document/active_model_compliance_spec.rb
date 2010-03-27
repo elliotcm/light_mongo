@@ -72,4 +72,30 @@ describe ActiveModelCompliance do
       end
     end
   end
+  
+  describe ".model_name" do
+    it "responds to model_name" do
+      ActiveModelComplianceTest.should respond_to(:model_name)
+    end
+
+    it "is a string" do
+      ActiveModelComplianceTest.model_name.should be_a(String)
+    end
+    
+    it "has a human inflector" do
+      ActiveModelComplianceTest.model_name.human.should be_a(String)
+    end
+    
+    it "has a partial path inflector" do
+      ActiveModelComplianceTest.model_name.partial_path.should be_a(String)
+    end
+    
+    it "has a singular inflector" do
+      ActiveModelComplianceTest.model_name.singular.should be_a(String)
+    end
+    
+    it "has a plural inflector" do
+      ActiveModelComplianceTest.model_name.plural.should be_a(String)
+    end
+  end
 end
