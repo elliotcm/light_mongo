@@ -46,4 +46,30 @@ describe ActiveModelCompliance do
       end
     end
   end
+
+  describe "#destroyed?" do
+    it "responds to #destroyed?" do
+      @model.should respond_to(:destroyed?)
+    end
+    
+    context "when the object has an id" do
+      before(:each) do
+        @model.instance_variable_set(:@_id, mock(:id))
+      end
+      
+      it "is false" do
+        @model.destroyed?.should be_false
+      end
+    end
+
+    context "when the object has no id" do
+      before(:each) do
+        @model.instance_variable_set(:@_id, nil)
+      end
+      
+      it "is true" do
+        @model.destroyed?.should be_true
+      end
+    end
+  end
 end
