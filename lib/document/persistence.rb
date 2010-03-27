@@ -48,6 +48,13 @@ module LightMongo
         self.update(params).save
       end
       
+      def delete!
+        if result = collection.remove(:_id => @_id)
+          @_id = nil
+          return result
+        end
+      end
+      
       def id
         @_id
       end

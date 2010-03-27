@@ -93,6 +93,29 @@ describe LightMongo::Document::Persistence do
     end
   end
 
+  describe "#delete!" do
+    before(:each) do
+      @test_object = TestClass.new(:_id => (@id = mock(:id)), :name => 'Test object')
+    end
+
+    it "removes the object" do
+      @test_class_collection.should_receive(:remove).with(:_id => @id)
+      @test_object.delete!
+    end
+    
+    it "returns the result of the remove" do
+      @test_class_collection.stub!(:remove => (@result = mock(:result)))
+      @test_object.delete!.should == @result
+    end
+    
+    it "erases the document's id" do
+      @test_object.id.should == @id
+
+      @test_class_collection.stub!(:remove => true)
+      @test_object.delete!
+      @test_object.id.should be_nil
+    end
+  end
   
   describe "#id" do
     before(:each) do
