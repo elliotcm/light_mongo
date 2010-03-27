@@ -52,6 +52,7 @@ describe LightMongo::Document::Persistence do
   describe "#update!(params)" do
     before(:each) do
       @test_object = TestClass.new(:name => 'Test object')
+      @test_object.stub!(:save => (@result = mock(:result)))
     end
 
     def update_object
@@ -69,7 +70,6 @@ describe LightMongo::Document::Persistence do
     end
     
     it "returns the result of the save" do
-      @test_object.stub!(:save => (@result = mock(:result)))
       update_object.should == @result
     end
   end

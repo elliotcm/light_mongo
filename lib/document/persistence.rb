@@ -44,6 +44,10 @@ module LightMongo
         return self
       end
       
+      def update!(params)
+        self.update(params).save
+      end
+      
       def id
         @_id
       end
