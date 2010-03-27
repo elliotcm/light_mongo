@@ -36,6 +36,14 @@ module LightMongo
         @_id = collection.save(self.to_hash)
       end
       
+      def update(params)
+        params.each_pair do |attr_name, attr_value|
+          self.instance_variable_set '@'+attr_name.to_s, attr_value
+        end
+        
+        return self
+      end
+      
       def id
         @_id
       end

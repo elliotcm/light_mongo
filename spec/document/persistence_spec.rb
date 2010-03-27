@@ -49,6 +49,51 @@ describe LightMongo::Document::Persistence do
     end
   end
   
+  describe "#update!(params)" do
+    before(:each) do
+      @test_object = TestClass.new(:name => 'Test object')
+    end
+
+    def update_object
+      @test_object.update! :name => (@name = mock(:name))
+    end
+    
+    it "updates the object's state" do
+      update_object
+      @test_object.name.should == @name
+    end
+    
+    it "saves the object" do
+      @test_object.should_receive(:save)
+      update_object
+    end
+    
+    it "returns the result of the save" do
+      @test_object.stub!(:save => (@result = mock(:result)))
+      update_object.should == @result
+    end
+  end
+
+  describe "#update(params)" do
+    before(:each) do
+      @test_object = TestClass.new(:name => 'Test object')
+    end
+
+    def update_object
+      @test_object.update :name => (@name = mock(:name))
+    end
+    
+    it "updates the object's state" do
+      update_object
+      @test_object.name.should == @name
+    end
+    
+    it "returns the object" do
+      update_object.should == @test_object
+    end
+  end
+
+  
   describe "#id" do
     before(:each) do
       @id = mock(:id)
