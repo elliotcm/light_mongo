@@ -13,6 +13,10 @@ LightMongo is best installed via `gem install light_mongo` and required as norma
 It is dependent on the gem `mongo`, which is the MongoDB Ruby driver.
 For performance reasons I would recommend also installing `mongo_ext`, the C extensions for the driver.
 
+Rails
+-----
+Please see elliotcm/light_mongo-rails for an ActionPack-compatible bridge.
+
 The problem
 -----------
 Developers occasionally encounter a domain which defies simple modelling in an ActiveRecord relational style, and look to some of the nosql databases for a solution.  They find Mongo, a document database, and feel it might provide the flexibility they need.  After a bit of research they pick out a persistence library which seems popular and well maintained.  It even emulates most of ActiveRecord's behaviour, style and relational philosophy.  Great!
