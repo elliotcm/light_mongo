@@ -73,6 +73,24 @@ describe ActiveModelCompliance do
     end
   end
   
+  describe "#errors" do
+    it "responds to errors" do
+      @model.should respond_to(:errors)
+    end
+    
+    describe "#[]" do
+      it "returns an array on a missing key lookup" do
+        @model.errors[:does_not_exist].should be_an(Array)
+      end
+    end
+    
+    describe "#full_messages" do
+      it "returns an array" do
+        @model.errors.full_messages.should be_an(Array)
+      end
+    end
+  end
+  
   describe ".model_name" do
     it "responds to model_name" do
       ActiveModelComplianceTest.should respond_to(:model_name)

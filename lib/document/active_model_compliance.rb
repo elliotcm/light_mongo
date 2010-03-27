@@ -1,5 +1,14 @@
 require 'rubygems'
+
 require 'active_model/naming'
+
+require 'active_model/deprecated_error_methods'
+require 'active_model/errors'
+
+# Still missing from complete ActionPack integration is
+# validations, which I've left out of this "barebones"
+# compliance, and translations, which might be worth
+# bundling in the future.
 
 module LightMongo
   module Document
@@ -20,6 +29,15 @@ module LightMongo
 
       def destroyed?
         @_id.nil?
+      end
+      
+      def initialize
+        @errors = ActiveModel::Errors.new(self)
+        super
+      end
+      
+      def errors
+        @errors
       end
       
       def self.included(doc_class)
