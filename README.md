@@ -15,7 +15,7 @@ For performance reasons I would recommend also installing `mongo_ext`, the C ext
 
 Rails
 -----
-Please see elliotcm/light_mongo-rails for an ActionPack-compatible bridge.
+Please see [LightMongo-Rails][lm_rails] for an ActionPack-compatible bridge.
 
 The problem
 -----------
@@ -135,7 +135,7 @@ Future development
 1. Migrations (e.g. when you rename classes or modify their collection style).
 2. Some kind of validations, perhaps.
 
-
+[lm_rails]:http://github.com/elliotcm/light_mongo-rails
 
 
 
