@@ -31,13 +31,8 @@ module LightMongo
         @_id.nil?
       end
       
-      def initialize
-        @errors = ActiveModel::Errors.new(self)
-        super
-      end
-      
       def errors
-        @errors
+        @errors ||= ActiveModel::Errors.new(self)
       end
       
       def self.included(doc_class)
