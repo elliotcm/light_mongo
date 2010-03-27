@@ -6,6 +6,10 @@ module LightMongo
       def valid?
         true
       end
+      
+      def new_record?
+        @_id.nil?
+      end
     end
     
   end
