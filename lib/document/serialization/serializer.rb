@@ -27,7 +27,7 @@ module LightMongo
                 end
 
                 if object_to_deserialize.has_key?('_embed') and object_to_deserialize['_embed'] == true
-                  return Object.const_get(class_name).find(object_to_deserialize['_id']).first
+                  return Object.const_get(class_name).find(object_to_deserialize['_id'])
                 end
               end
               

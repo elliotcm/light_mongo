@@ -97,7 +97,7 @@ describe Serializer do
         end
         
         it "recovers the linked document" do
-          TestClass.stub!(:find).with(@id).and_return([test_instance = mock(:test_instance)])
+          TestClass.stub!(:find).with(@id).and_return(test_instance = mock(:test_instance))
           
           Serializer.deserialize(@object).should == test_instance
         end
