@@ -160,19 +160,41 @@ describe LightMongo::Document::Persistence do
   end
   
   describe ".find(query=nil)" do
-    before(:each) do
-      @no_query_results = mock(:no_query_results)
-      @query_results = mock(:query_results)
-      TestClass.stub!(:new).with(@no_query_results).and_return(@no_query_object = mock(:no_query_object))
-      TestClass.stub!(:new).with(@query_results).and_return(@query_object = mock(:query_object))
+    context "when passed a string" do
+      before(:each) do
+        @query = "4bae6ac37bc7693598000001"
+        Mongo::ObjectID.stub!(:from_string).with(@query).and_return(oid = mock(:oid))
+        @test_class_collection.stub!(:find_one).with(oid).and_return(results = mock(:results))
+        TestClass.stub!(:new).with(results).and_return(@TestObject = mock(:TestObject))
+      end
+      
+      it "does a single-record lookup using the string as an ID" do
+        TestClass.find(@query).should == @TestObject
+      end
     end
     
-    it "maps MongoDB::Collection.find" do
-      @test_class_collection.should_receive(:find).and_return([@no_query_results])
-      TestClass.find.should == [@no_query_object]
+    context "when passed an OID" do
+      before(:each) do
+        @query = Mongo::ObjectID.from_string("4bae6ac37bc7693598000001")
+        @test_class_collection.stub!(:find_one).with(@query).and_return(results = mock(:results))
+        TestClass.stub!(:new).with(results).and_return(@TestObject = mock(:TestObject))
+      end
       
-      @test_class_collection.should_receive(:find).with({'_id' => query = mock(:query)}).and_return([@query_results])
-      TestClass.find(query).should == [@query_object]
+      it "does a single-record lookup using the ID" do
+        TestClass.find(@query).should == @TestObject
+      end
+    end
+    
+    context "when passed anything else" do
+      before(:each) do
+        @query = mock(:query)
+        @test_class_collection.stub!(:find).with(@query).and_return([results = mock(:results)])
+        TestClass.stub!(:new).with(results).and_return(@TestObject = mock(:TestObject))
+      end
+      
+      it "does a multi-record lookup on the query" do
+        TestClass.find(@query).should == [@TestObject]
+      end
     end
   end
   

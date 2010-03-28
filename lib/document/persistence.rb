@@ -89,7 +89,9 @@ module LightMongo
         end
         
         def find(query=nil)
-          query = {'_id' => query} unless query.nil? or query.is_a?(Hash)
+          return new(collection.find_one(query)) if query.is_a?(Mongo::ObjectID)
+          return new(collection.find_one(Mongo::ObjectID.from_string(query))) if query.is_a? String
+          
           collection.find(query).map{|bson_hash| new(bson_hash)}
         end
         
