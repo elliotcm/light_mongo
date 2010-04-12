@@ -37,6 +37,4 @@ describe 'Embedding a Ruby object within your LightMongo::Document' do
     stored_comment.author_name.should == @comment.author_name
     stored_comment.text.should == @comment.text
   end
-  
-  db_teardown
 end

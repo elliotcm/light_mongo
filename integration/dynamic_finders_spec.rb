@@ -28,6 +28,4 @@ describe 'Indexing an attribute' do
       Article.find_by_precis('A study in geological fluid physics').first.should == @geology_article
     end
   end
-  
-  db_teardown
 end

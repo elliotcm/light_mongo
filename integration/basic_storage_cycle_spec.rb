@@ -35,6 +35,4 @@ describe 'The basic storage cycle' do
     article.delete!
     Article.find.should be_empty
   end
-  
-  db_teardown
 end

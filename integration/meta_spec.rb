@@ -1,8 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/support/integration_helper')
 
-describe 'Integration tests' do
-  db_teardown
-  
+describe 'Each integration test' do
   before(:each) do
     class Integration
       include LightMongo::Document
