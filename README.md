@@ -13,6 +13,8 @@ LightMongo is best installed via `gem install light_mongo` and required as norma
 It is dependent on the gem `mongo`, which is the MongoDB Ruby driver.
 For performance reasons I would recommend also installing `mongo_ext`, the C extensions for the driver.
 
+__UPDATE__: Looks like Kyle Banker released a 1.0 of the Ruby Mongo driver.  This is awesome stuff but unfortunately breaks a bunch of LightMongo.  I can't guarantee any environment newer than `Ruby 1.8.6` and `mongo 0.19.1` for the moment.
+
 Rails
 -----
 Please see [LightMongo-Rails][lm_rails] for an ActionPack-compatible bridge.
