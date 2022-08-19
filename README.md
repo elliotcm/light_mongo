@@ -4,7 +4,7 @@ LightMongo is a lightweight Mongo object persistence layer for Ruby which makes 
 
 Status
 -----------------
-LightMongo is still new, but all the examples below are working.  Please check out the integration tests for usage indications, and please post any issues you find to the the Github issues page.
+This project is long abandoned in favour of other contemporary ORMs.
 
 Installation
 ------------
